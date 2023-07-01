@@ -1,0 +1,117 @@
+---
+title: "Happiness"
+author: "Noah Lee"
+date: "2023-06-25"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(dplyr)
+library(tidyverse)
+library(sqldf)
+library(corrr)
+library(caret)
+library(ISLR)
+```
+
+## Load the data
+```{r}
+whr2015 <- read.csv("2015.csv")
+whr2015
+```
+
+## THE YEAR 2015 ##
+Preparing the data
+```{r}
+#Rename the columns
+colnames(whr2015)[3] = "Happiness_Rank"
+colnames(whr2015)[4] = "Happiness_Score"
+colnames(whr2015)[5] = "Standard_Error"
+colnames(whr2015)[6] = "GDP"
+colnames(whr2015)[8] = "Life_Exp"
+colnames(whr2015)[10] = "Trust"
+colnames(whr2015)[12] = "Dystopia_Res"
+#Remove Happiness_Rank as it is not needed
+whr2015 <- whr2015[,-3]
+#Top and bottom 10 countries and their happiness scores
+head(whr2015, n=10)
+tail(whr2015, n=10)
+#Where the United States stands
+whr2015[whr2015$Country == 'United States',]
+```
+    Above are the countries with the top 10 highest and lowest happiness scores.. The top 10 is mostly made up of Western European countries, while 8 of the lowest 10 rankings nations are from Sub-Saharan Africa.
+    The USA is ranked 15/158.
+
+
+What is the average happiness score per region?
+```{r}
+region_average2015 <- sqldf("SELECT Region, AVG(Happiness_Score) FROM whr2015
+                            GROUP BY Region
+                            ORDER BY AVG(Happiness_Score) desc")
+region_average2015
+```
+
+
+Graph of the relationship between gdp and happiness score
+```{r}
+ggplot(whr2015, aes(x = GDP, y = Happiness_Score, group = Region)) +
+  geom_point(aes(col=Region)) +
+  labs(y = "Happiness Score")
+```
+It appears that countries with a higher GDP has a higher happiness score.
+
+
+Correlation matrix
+```{r}
+whr2015.cor <- correlate(whr2015[3:11])
+whr2015.cor
+```
+
+
+
+## Create a model to prdict a nation's happiness score
+Split data into train and test
+```{r}
+set.seed(1)
+#use 70% of dataset as training set and 30% as test set
+sample <- sample(c(TRUE, FALSE), nrow(whr2015), replace=T, prob=c(0.75,0.25))
+train <- whr2015[sample, ]
+test <- whr2015[!sample, ]
+#train
+#test
+```
+
+
+Look for statistically significant variables
+```{r}
+model2015 <- glm(Happiness_Score ~ Region + GDP + Family + Life_Exp + Freedom + Trust + Generosity + Dystopia_Res, data=whr2015)
+summary(model2015)
+```
+All variables appear to be stat-sig (look at p-values and ***)
+
+
+
+Create model for train and create a confusion matrix
+```{r}
+predicted <- predict(model2015, test, type="response")
+confusionMatrix(data=predicted, reference = as.factor(whr2015$Happiness_Score))
+```
+
+
+
+```{r}
+
+```
+
+
+
+
+
+
+
+
+
+
+
