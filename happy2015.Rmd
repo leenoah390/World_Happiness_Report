@@ -23,7 +23,6 @@ Dataset includes information gathered for the World Happiness Report survey for 
 Load the data
 ```{r}
 whr2015 <- read.csv("2015.csv")
-unique(whr2015)
 ```
 
 
