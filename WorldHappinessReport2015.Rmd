@@ -98,7 +98,7 @@ It appears that countries with a higher GDP has a higher happiness score.
 
 
 
-## Create a model to prdict a nation's happiness score
+## Create a model to predict a nation's happiness score
 Split data into train and test
 ```{r}
 set.seed(1)
